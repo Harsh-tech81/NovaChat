@@ -8,13 +8,15 @@ import { TiWeatherSunny } from "react-icons/ti";
 import { IoDiamondOutline } from "react-icons/io5";
 import moment from "moment";
 
-function Sidebar() {
+function Sidebar({ isMenuOpen, setIsMenuOpen }) {
   const { user, chats, theme, setTheme, setSelectedChat, navigate } =
     useAppContext();
   const [search, setSearch] = useState("");
 
   return (
-    <div className="flex flex-col h-screen min-w-72 p-5 dark:bg-gradient-to-b from-[#242124]/30 to-[#000000]/30 border-r border-[#80609F]/30 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-1">
+    <div
+      className={`flex flex-col h-screen min-w-72 p-5 dark:bg-gradient-to-b from-[#242124]/30 to-[#000000]/30 border-r border-[#80609F]/30 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-1 ${!isMenuOpen && "max-md:-translate-x-full"}`}
+    >
       {/* Logo */}
       <img
         src={theme === "dark" ? assets.logo_full : assets.logo_full_dark}
@@ -50,6 +52,11 @@ function Sidebar() {
           )
           .map((chat) => (
             <div
+              onClick={() => {
+                navigate("/");
+                setSelectedChat(chat);
+                setIsMenuOpen(false);
+              }}
               key={chat._id}
               className="p-2 px-4 dark:bg-[#57317C]/10 border border-gray-300 dark:border-[#80609F]/15 rounded-md cursor-pointer flex justify-between group"
             >
@@ -73,7 +80,10 @@ function Sidebar() {
 
       {/* Community Images */}
       <div
-        onClick={() => navigate("/community")}
+        onClick={() => {
+          navigate("/community");
+          setIsMenuOpen(false);
+        }}
         className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all duration-300"
       >
         <GrGallery className="w-5 h-4 cursor-pointer" />
@@ -84,7 +94,10 @@ function Sidebar() {
 
       {/* Credit purchase options */}
       <div
-        onClick={() => navigate("/credits")}
+        onClick={() => {
+          navigate("/credits");
+          setIsMenuOpen(false);
+        }}
         className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all duration-300"
       >
         <IoDiamondOutline className="w-5 h-4 cursor-pointer" />
@@ -114,17 +127,28 @@ function Sidebar() {
         </label>
       </div>
 
-{/* User Account */}
- <div
+      {/* User Account */}
+      <div
         onClick={() => navigate("/community")}
-        className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all duration-300"
+        className="flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
       >
-        <GrGallery className="w-5 h-4 cursor-pointer" />
-        <div className="flex flex-col text-sm">
-          <p>Community Images</p>
-        </div>
+        <img src={assets.user_icon} className="w-7 rounded-full" />
+        <p className="flex-1 text-sm dark:text-primary truncate">
+          {user ? user.name || "User" : "Login your account"}
+        </p>
+        {user && (
+          <img
+            src={assets.logout_icon}
+            className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"
+          />
+        )}
       </div>
 
+      <img
+        onClick={() => setIsMenuOpen(false)}
+        src={assets.close_icon}
+        className="absolute top-3 right-3 w-5 h-5 cursor-pointer md:hidden not-dark:invert"
+      />
     </div>
   );
 }
