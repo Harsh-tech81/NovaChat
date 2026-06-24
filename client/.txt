@@ -1,3 +1,3 @@
 By using react-MarkDown package we are able to format the content or paragraph
 By using moment package we can format the Time and Date
-By using the prismjs package we can 
+By using the prismjs package we can format the code section of the content provided by chatgpt 
