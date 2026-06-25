@@ -6,9 +6,15 @@ import Credits from "./pages/Credits";
 import Community from "./pages/Community";
 import { assets } from "./assets/assets";
 import './assets/prism.css';
-
+import {useLocation} from 'react-router-dom';
+import Loading from "./pages/Loading";
 function App() {
+
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const {pathname} = useLocation();
+if(pathname === '/loading') return <Loading />;
+
   return (
     <>
     {
