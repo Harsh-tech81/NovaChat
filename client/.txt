@@ -1,3 +1,6 @@
 By using react-MarkDown package we are able to format the content or paragraph
 By using moment package we can format the Time and Date
 By using the prismjs package we can format the code section of the content provided by chatgpt 
+
+
+This project is AI Chatbot named NovaChat in MERN using Stripe as a payment gateway and Add Google Gemini API KEY connect Imagekit for images 
