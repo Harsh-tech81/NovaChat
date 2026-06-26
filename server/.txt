@@ -1,0 +1,2 @@
+Use openai package for using answer for the Q that we have asked as a prompt given by user.
+we used gemini api key 

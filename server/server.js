@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import connectDB from './configs/db.js';
+import chatRouter from './routes/chatRoutes.js';
 import userRouter from './routes/userRoutes.js';
 const app=express();
 const PORT=process.env.PORT || 3000;
@@ -15,7 +16,7 @@ app.get('/',(req,res)=>{
     res.send('Hello World');
 });
 app.use('/api/user',userRouter);
-
+app.use('/api/chat',chatRouter);
 app.listen(PORT,()=>{
     console.log(`Server is running on http://localhost:${PORT}`);
 });
