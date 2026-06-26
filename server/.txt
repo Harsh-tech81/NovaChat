@@ -1,2 +1,5 @@
 Use openai package for using answer for the Q that we have asked as a prompt given by user.
 we used gemini api key 
+We use imagekit for generating the AI generated Images in our Chat 
+Use axios we can also use JS Fetch method to fetch the API but By using the Axios it can automatically convert it into the JSON we don't need to manually convert after fetching the data from the API 
+
