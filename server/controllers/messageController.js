@@ -73,8 +73,9 @@ export const imageMessageController = async (req, res) => {
     // Encode the prompt
     const encodedPrompt = encodeURIComponent(prompt);
     // Construct the Imagekit AI generation URL
-    const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-gening-prompt-${encodedPrompt}/NovaChat/${Date.now()}.png?tr=w-800,h-800`;
+    const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-genimg-prompt-${encodedPrompt}/NovaChat/${Date.now()}.png?tr=w-800,h-800`;
     // trigger generation by fetching from Imagekit
+
     const aiImageResponse = await axios.get(generatedImageUrl, {
       responseType: "arraybuffer",
     });
