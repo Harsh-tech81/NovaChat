@@ -1,12 +1,26 @@
 import { useState, useEffect } from "react";
-import { dummyPlans } from "../assets/assets";
 import Loading from "./Loading";
+import { useAppContext } from "../context/AppContext";
+import { toast } from "react-hot-toast";
 
 function Credits() {
+
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { axios, token } = useAppContext();
+
   const fetchPlans = async () => {
-    setPlans(dummyPlans);
+    try {
+      const { data } = await axios.get("/api/credit/plan",{ headers: { Authorization: token } });
+      if (data.success) {
+        setPlans(data.plans);
+      } else {
+        toast.error(data.message || "Failed to fetch plans");
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to fetch plans");
+    }
     setLoading(false);
   };
 
@@ -17,6 +31,21 @@ function Credits() {
   if (loading) {
     return <Loading />;
   }
+
+const purchasePlan = async (planId) => {
+  try {
+    const { data } = await axios.post("/api/credit/purchase", { planId }, { headers: { Authorization: token } });
+    if (data.success) {
+      window.location.href = data.url; // Redirect to payment URL
+      toast.success("Redirecting to payment...");
+    } else {
+      toast.error(data.message || "Failed to purchase plan");
+    }
+  } catch (error) {
+    toast.error(error.message || "Failed to purchase plan");
+  }
+};
+
   return (
     <div className="max-w-7xl h-screen overflow-y-scroll mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-10 xl:mt-30 text-center">
@@ -46,7 +75,7 @@ function Credits() {
               </ul>
             </div>
 
-            <button className="bg-purple-600 hover:bg-purple-700  font-medium py-2 px-4 rounded mt-6 text-white active:bg-purple-800 transition-colors cursor-pointer">
+            <button onClick={() => toast.promise(purchasePlan(plan._id),{loading: "Processing..."})} className="bg-purple-600 hover:bg-purple-700  font-medium py-2 px-4 rounded mt-6 text-white active:bg-purple-800 transition-colors cursor-pointer">
               Buy Now
             </button>
           </div>
@@ -54,6 +83,7 @@ function Credits() {
       </div>
     </div>
   );
+
 }
 
 export default Credits;

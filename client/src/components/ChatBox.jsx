@@ -2,8 +2,10 @@ import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import { useEffect, useState, useRef } from "react";
 import Message from "./Message";
+import { toast } from "react-hot-toast";
+
 function ChatBox() {
-  const { selectedChat, theme } = useAppContext();
+  const { selectedChat, theme, user, axios, token, setUser } = useAppContext();
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState("");
   const [mode, setMode] = useState("text");
@@ -18,8 +20,56 @@ function ChatBox() {
   }, [selectedChat]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
+      if (!user) return toast("Login to send messages");
+      setLoading(true);
+      const promptCopy = prompt;
+      setPrompt("");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "user",
+          content: prompt,
+          timestamp: Date.now(),
+          isImage: false,
+        },
+      ]);
+      const { data } = await axios.post(
+        `/api/message/${mode}`,
+        { chatId: selectedChat._id, prompt, isPublished },
+        {
+          headers: {
+            Authorization: token,
+          },
+        },
+      );
+      if (data.success) {
+        setMessages((prev) => [...prev, data.reply]);
+        // decrease user credits if mode is text
+        if (mode === "text") {
+          setUser((prev) => ({
+            ...prev,
+            credits: prev.credits - 1,
+          }));
+        } else {
+          setUser((prev) => ({
+            ...prev,
+            credits: prev.credits - 2,
+          }));
+        }
+      } else {
+        toast.error(data.message || "Something went wrong");
+        setPrompt(promptCopy);
+      }
+    } catch (err) {
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+      setPrompt("");
+    }
   };
+
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -101,6 +151,7 @@ function ChatBox() {
       </form>
     </div>
   );
+  
 }
 
 export default ChatBox;

@@ -7,24 +7,74 @@ import { GrGallery } from "react-icons/gr";
 import { TiWeatherSunny } from "react-icons/ti";
 import { IoDiamondOutline } from "react-icons/io5";
 import moment from "moment";
-
+import { toast } from "react-hot-toast";
 function Sidebar({ isMenuOpen, setIsMenuOpen }) {
-  const { user, chats, theme, setTheme, setSelectedChat, navigate } =
-    useAppContext();
+  const {
+    user,
+    chats,
+    theme,
+    setTheme,
+    setSelectedChat,
+    navigate,
+    axios,
+    setChats,
+    fetchUsersChats,
+    createNewChat,
+    setToken,
+    token
+  } = useAppContext();
   const [search, setSearch] = useState("");
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    toast.success("Logged out successfully");
+    navigate("/login");
+  };
+  const deleteChat = async (e, chatId) => {
+    try {
+      e.stopPropagation();
+      const confirm = window.confirm(
+        "Are you sure you want to delete this chat?",
+      );
+      if (confirm){
+      const { data } = await axios.post(
+        "/api/chat/delete",
+        { chatId },
+        {
+          headers: {
+            Authorization: token,
+          },
+        },
+      );
+      if (data.success) {
+        setChats((prevChats) =>
+          prevChats.filter((chat) => chat._id !== chatId),
+        );
+        // await fetchUsersChats();
+        toast.success("Chat deleted successfully");
+      }
+    }
+    } catch (err) {
+      toast.error("Failed to delete chat");
+    }
+  };
   return (
     <div
       className={`flex flex-col h-screen min-w-52 p-5 dark:bg-gradient-to-b from-[#242124]/30 to-[#000000]/30 border-r border-[#80609F]/30 backdrop-blur-3xl transition-all duration-500 max-md:absolute left-0 z-1 ${!isMenuOpen && "max-md:-translate-x-full"}`}
     >
       {/* Logo */}
       <img
+      onClick={() => {
+        navigate("/");
+        setIsMenuOpen(false);
+      }}  
         src={theme === "dark" ? assets.logo_full : assets.logo_full_dark}
         alt="Logo"
-        className="w-full max-w-54"
+        className="w-full max-w-54 cursor-pointer"
       />
       {/* New Chat Button */}
-      <button className="flex items-center justify-center w-full py-2 mt-10 text-white bg-gradient-to-r from-[#A456F7] to-[#3D81F6] text-sm rounded-md cursor-pointer ">
+      <button  onClick={createNewChat} className="flex items-center justify-center w-full py-2 mt-10 text-white bg-gradient-to-r from-[#A456F7] to-[#3D81F6] text-sm rounded-md cursor-pointer ">
         <span className="mr-2 text-xl">+</span> New Chat
       </button>
 
@@ -72,7 +122,14 @@ function Sidebar({ isMenuOpen, setIsMenuOpen }) {
               </div>
 
               <div className="group flex items-center gap-2">
-                <RiDeleteBin6Line className="hidden group-hover:block w-5 h-4  cursor-pointer" />
+                <RiDeleteBin6Line
+                  className="hidden group-hover:block w-5 h-4  cursor-pointer"
+                  onClick={(e) =>
+                    toast.promise(deleteChat(e, chat._id), {
+                      loading: "Deleting chat..."
+                    })
+                  }
+                />
               </div>
             </div>
           ))}
@@ -129,7 +186,7 @@ function Sidebar({ isMenuOpen, setIsMenuOpen }) {
 
       {/* User Account */}
       <div
-        onClick={() => navigate("/community")}
+        onClick={() => navigate("/")}
         className="flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
       >
         <img src={assets.user_icon} className="w-7 rounded-full" />
@@ -140,6 +197,7 @@ function Sidebar({ isMenuOpen, setIsMenuOpen }) {
           <img
             src={assets.logout_icon}
             className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"
+            onClick={logout}
           />
         )}
       </div>
