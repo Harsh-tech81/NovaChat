@@ -44,9 +44,13 @@ function Community() {
               className="relative group block rounded-lg overflow-hidden border border-gray-200 dark:border-purple-700 shadow-sm hover:shadow-md transition-shadow duration-300"
             >
               <img
-                src={image.imageUrl || "/errorImage.png"}
+                src={image.imageUrl}
                 alt="Community Generated Image"
                 className="w-full h-40 md:h-50 2xl:h-62 object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/errorImage.png";
+                }}
               />
               <p className="absolute bottom-0 right-0 text-xs bg-black/50 backdrop-blur text-white px-4 py-1 rounded-tl-xl opacity-0 group-hover:opacity-100 transition duration-300">
                 Created by {image.userName}

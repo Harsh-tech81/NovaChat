@@ -98,9 +98,13 @@ function Message({ message }) {
         <div className="inline-flex flex-col gap-2 p-4 px-5 max-w-full md:max-w-2xl lg:max-w-3xl bg-primary/20 dark:bg-[#57317C]/30 border border-[#80609F]/30 rounded-xl my-4">
           {message.isImage ? (
             <img
-              src={message.content}
+              src={message.content === "errorImage" ? "/errorImage.png" : message.content}
               alt="AI Generated"
               className="w-full max-w-md mt-2 rounded-lg"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/errorImage.png";
+              }}
             />
           ) : (
             <div className="markdown-body dark:text-primary/90">

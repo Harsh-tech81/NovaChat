@@ -74,25 +74,34 @@ export const imageMessageController = async (req, res) => {
     const encodedPrompt = encodeURIComponent(prompt);
     // Construct the Imagekit AI generation URL
     const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-genimg-prompt-${encodedPrompt}/NovaChat/${Date.now()}.png?tr=w-800,h-800`;
-    // trigger generation by fetching from Imagekit
 
-    const aiImageResponse = await axios.get(generatedImageUrl, {
-      responseType: "arraybuffer",
-    });
-    // Convert to Base64
-    const base64Image = `data:image/png;base64,${Buffer.from(aiImageResponse.data, "binary").toString("base64")}`;
-    // Uplaod to ImageKit Media Library
-    const uploadResponse = await imagekit.upload({
-      file: base64Image,
-      fileName: `${Date.now()}.png`,
-      folder: "NovaChat",
-    });
+    let imageUrl;
+    try {
+      // trigger generation by fetching from Imagekit
+      const aiImageResponse = await axios.get(generatedImageUrl, {
+        responseType: "arraybuffer",
+      });
+      // Convert to Base64
+      const base64Image = `data:image/png;base64,${Buffer.from(aiImageResponse.data, "binary").toString("base64")}`;
+      // Upload to ImageKit Media Library
+      const uploadResponse = await imagekit.upload({
+        file: base64Image,
+        fileName: `${Date.now()}.png`,
+        folder: "NovaChat",
+      });
+      imageUrl = uploadResponse.url;
+    } catch (imgErr) {
+      console.error("Image generation failed:", imgErr.message);
+      // Use the error image fallback from client public folder
+      imageUrl = "errorImage";
+    }
+
     const reply = {
       role: "assistant",
-      content: uploadResponse.url,
+      content: imageUrl,
       timestamp: Date.now(),
       isImage: true,
-      isPublished,
+      isPublished: imageUrl !== "errorImage" ? isPublished : false,
     };
 
     res.json({ reply, success: true });
