@@ -5,7 +5,6 @@ import ChatBox from "./components/ChatBox";
 import Credits from "./pages/Credits";
 import Community from "./pages/Community";
 import { assets } from "./assets/assets";
-import "./assets/prism.css";
 import { useLocation } from "react-router-dom";
 import Loading from "./pages/Loading";
 import Login from "./pages/Login";
