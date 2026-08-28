@@ -27,18 +27,18 @@ function MessageCopyBtn({ text }) {
   return (
     <button
       onClick={handleCopy}
-      className="msg-copy-btn"
+      className={`copy-btn ${copied ? "copied" : ""}`}
       title="Copy message"
     >
       {copied ? (
         <>
           <CheckIcon />
-          <span>Copied!</span>
+          Copied!
         </>
       ) : (
         <>
           <CopyIcon />
-          <span>Copy</span>
+          Copy
         </>
       )}
     </button>
