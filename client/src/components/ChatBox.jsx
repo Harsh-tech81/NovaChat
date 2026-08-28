@@ -80,7 +80,7 @@ function ChatBox() {
   }, [messages]);
 
   return (
-    <div className="flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-40">
+    <div className="flex-1 flex flex-col justify-between m-4 sm:m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-40">
       {/* chat messages */}
       <div ref={containerRef} className="flex-1 mb-5 overflow-y-scroll">
         {messages?.length == 0 && (
@@ -97,12 +97,14 @@ function ChatBox() {
         {messages.map((message, index) => (
           <Message key={index} message={message} />
         ))}
-        {/* Three dots for msg loading */}
+        {/* Loading animation */}
         {loading && (
-          <div className="flex items-center gap-1.5 loader">
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-white animate-bounce"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-white animate-bounce"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-white animate-bounce"></div>
+          <div className="flex items-center gap-1.5 p-3 px-5 max-w-fit bg-primary/20 dark:bg-[#57317C]/30 border border-[#80609F]/30 rounded-xl my-2">
+            <div className="flex items-center gap-1.5 loader">
+              <div className="w-2 h-2 rounded-full bg-purple-400 dark:bg-purple-300 animate-bounce"></div>
+              <div className="w-2 h-2 rounded-full bg-purple-400 dark:bg-purple-300 animate-bounce"></div>
+              <div className="w-2 h-2 rounded-full bg-purple-400 dark:bg-purple-300 animate-bounce"></div>
+            </div>
           </div>
         )}
       </div>
@@ -120,7 +122,7 @@ function ChatBox() {
       {/* Prompt Input Box */}
       <form
         onSubmit={handleSubmit}
-        className="bg-primary/20 dark:bg-[#583C79]/30 border border-primary dark:border-[#80609F]/30 rounded-full flex items-center w-full max-w-2xl p-3 pl-4 mx-auto gap-4 "
+        className="bg-primary/20 dark:bg-[#583C79]/30 border border-primary dark:border-[#80609F]/30 rounded-full flex items-center w-full max-w-2xl p-2.5 sm:p-3 pl-3 sm:pl-4 mx-auto gap-2 sm:gap-4"
       >
         <select
           className="text-sm pl-3 pr-2 outline-none"
