@@ -1,17 +1,14 @@
 import { assets } from "../assets/assets";
 import moment from "moment";
-import { useState, useCallback } from "react";
+import { useState, useCallback, Children } from "react";
 import Markdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-function CodeBlock({ className, children }) {
+function CodeBlock({ language, code }) {
   const [copied, setCopied] = useState(false);
-  const match = /language-(\w+)/.exec(className || "");
-  const language = match ? match[1] : "text";
-  const code = String(children).replace(/\n$/, "");
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(code);
@@ -22,7 +19,7 @@ function CodeBlock({ className, children }) {
   return (
     <div className="code-block-wrapper">
       <div className="code-block-header">
-        <span>{language}</span>
+        <span>{language || "text"}</span>
         <button
           onClick={handleCopy}
           className={`copy-btn ${copied ? "copied" : ""}`}
@@ -42,7 +39,7 @@ function CodeBlock({ className, children }) {
       </div>
       <SyntaxHighlighter
         style={vscDarkPlus}
-        language={language}
+        language={language || "text"}
         PreTag="div"
         wrapLongLines={true}
         customStyle={{
@@ -58,6 +55,31 @@ function CodeBlock({ className, children }) {
     </div>
   );
 }
+
+const markdownComponents = {
+  // Override <pre> to intercept code blocks (fenced code)
+  pre({ children }) {
+    // children is typically a <code> element
+    const codeElement = Children.toArray(children).find(
+      (child) => child?.type === "code" || child?.props?.className
+    );
+    if (codeElement && codeElement.props) {
+      const className = codeElement.props.className || "";
+      const match = /language-(\w+)/.exec(className);
+      const language = match ? match[1] : "";
+      const code = String(codeElement.props.children).replace(/\n$/, "");
+      return <CodeBlock language={language} code={code} />;
+    }
+    // Fallback: render as-is
+    return <pre>{children}</pre>;
+  },
+  // Inline code only — no className means inline
+  code({ className, children, ...props }) {
+    // If it has a language class, it's inside a <pre> which is handled above
+    if (className) return <code className={className} {...props}>{children}</code>;
+    return <code {...props}>{children}</code>;
+  },
+};
 
 function Message({ message }) {
   return (
@@ -85,23 +107,7 @@ function Message({ message }) {
               <Markdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeKatex]}
-                components={{
-                  code({ className, children, ...props }) {
-                    const isInline = !className;
-                    if (isInline) {
-                      return (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      );
-                    }
-                    return (
-                      <CodeBlock className={className}>
-                        {children}
-                      </CodeBlock>
-                    );
-                  },
-                }}
+                components={markdownComponents}
               >
                 {message.content}
               </Markdown>
