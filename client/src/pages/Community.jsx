@@ -39,12 +39,12 @@ function Community() {
           {images.map((image, index) => (
             <a
               key={index}
-              href={image.imageUrl || ""}
-              target="_blank"
+              href={image.imageUrl || "#"}
+              target={image.imageUrl ? "_blank" : undefined}
               className="relative group block rounded-lg overflow-hidden border border-gray-200 dark:border-purple-700 shadow-sm hover:shadow-md transition-shadow duration-300"
             >
               <img
-                src={image.imageUrl}
+                src={image.imageUrl || "/errorImage.png"}
                 alt="Community Generated Image"
                 className="w-full h-40 md:h-50 2xl:h-62 object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out"
                 onError={(e) => {
