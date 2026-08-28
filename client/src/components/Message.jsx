@@ -7,6 +7,44 @@ import rehypeKatex from "rehype-katex";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
+// Reusable copy icon SVGs
+const CopyIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+);
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+);
+
+// Copy button for messages (user/AI text)
+function MessageCopyBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [text]);
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="msg-copy-btn"
+      title="Copy message"
+    >
+      {copied ? (
+        <>
+          <CheckIcon />
+          <span>Copied!</span>
+        </>
+      ) : (
+        <>
+          <CopyIcon />
+          <span>Copy</span>
+        </>
+      )}
+    </button>
+  );
+}
+
 function CodeBlock({ language, code }) {
   const [copied, setCopied] = useState(false);
 
@@ -26,12 +64,12 @@ function CodeBlock({ language, code }) {
         >
           {copied ? (
             <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <CheckIcon />
               Copied!
             </>
           ) : (
             <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <CopyIcon />
               Copy
             </>
           )}
@@ -86,16 +124,19 @@ function Message({ message }) {
     <div>
       {message.role === "user" ? (
         <div className="flex items-start gap-2 justify-end my-4">
-          <div className="flex flex-col gap-2 p-3 px-4 bg-slate-50 dark:bg-[#57317C]/30 border border-[#80609F]/30 rounded-xl max-w-2xl">
-            <p className="text-sm dark:text-primary">{message.content}</p>
-            <span className="text-xs text-gray-400 dark:text-[#B1A6C0]">
-              {moment(message.timestamp).format("MMM DD, YYYY, hh:mm A")}
-            </span>
+          <div className="msg-bubble-user group relative flex flex-col gap-2 p-3 px-4 bg-slate-50 dark:bg-[#57317C]/30 border border-[#80609F]/30 rounded-xl max-w-[85vw] sm:max-w-xl md:max-w-2xl">
+            <p className="text-sm dark:text-primary break-words">{message.content}</p>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-gray-400 dark:text-[#B1A6C0]">
+                {moment(message.timestamp).format("MMM DD, YYYY, hh:mm A")}
+              </span>
+              <MessageCopyBtn text={message.content} />
+            </div>
           </div>
-          <img src={assets.user_icon} alt="User" className="w-8 rounded-full mt-1" />
+          <img src={assets.user_icon} alt="User" className="w-7 sm:w-8 rounded-full mt-1 shrink-0" />
         </div>
       ) : (
-        <div className="inline-flex flex-col gap-2 p-4 px-5 max-w-full md:max-w-2xl lg:max-w-3xl bg-primary/20 dark:bg-[#57317C]/30 border border-[#80609F]/30 rounded-xl my-4">
+        <div className="msg-bubble-ai group relative inline-flex flex-col gap-2 p-4 px-4 sm:px-5 max-w-[85vw] sm:max-w-xl md:max-w-2xl lg:max-w-3xl bg-primary/20 dark:bg-[#57317C]/30 border border-[#80609F]/30 rounded-xl my-4">
           {message.isImage ? (
             <img
               src={(!message.content || message.content === "errorImage") ? "/errorImage.png" : message.content}
@@ -107,7 +148,7 @@ function Message({ message }) {
               }}
             />
           ) : (
-            <div className="markdown-body dark:text-primary/90">
+            <div className="markdown-body dark:text-primary/90 overflow-x-auto">
               <Markdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeKatex]}
@@ -117,9 +158,12 @@ function Message({ message }) {
               </Markdown>
             </div>
           )}
-          <span className="text-xs text-gray-400 dark:text-[#B1A6C0]">
-            {moment(message.timestamp).format("MMM DD, YYYY, hh:mm A")}
-          </span>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs text-gray-400 dark:text-[#B1A6C0]">
+              {moment(message.timestamp).format("MMM DD, YYYY, hh:mm A")}
+            </span>
+            {!message.isImage && <MessageCopyBtn text={message.content} />}
+          </div>
         </div>
       )}
     </div>

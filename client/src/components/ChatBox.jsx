@@ -80,9 +80,9 @@ function ChatBox() {
   }, [messages]);
 
   return (
-    <div className="flex-1 flex flex-col justify-between m-4 sm:m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-40">
-      {/* chat messages */}
-      <div ref={containerRef} className="flex-1 mb-5 overflow-y-scroll">
+    <div className="flex-1 flex flex-col h-screen overflow-hidden px-3 sm:px-5 md:px-10 xl:px-30 pt-3 sm:pt-5 md:pt-10 max-md:pt-14 2xl:pr-40 pb-3 sm:pb-5">
+      {/* chat messages — scrollable */}
+      <div ref={containerRef} className="flex-1 overflow-y-auto min-h-0 pb-2">
         {messages?.length == 0 && (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-primary">
             <img
@@ -108,49 +108,53 @@ function ChatBox() {
           </div>
         )}
       </div>
-      {mode === "image" && (
-        <label className="inline-flex items-center gap-2 mb-3 text-sm mx-auto">
-          <p className="text-xs">Publish Generated Image to Community</p>
-          <input
-            type="checkbox"
-            className="cursor-pointer"
-            checked={isPublished}
-            onChange={(e) => setIsPublished(e.target.checked)}
-          />
-        </label>
-      )}
-      {/* Prompt Input Box */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-primary/20 dark:bg-[#583C79]/30 border border-primary dark:border-[#80609F]/30 rounded-full flex items-center w-full max-w-2xl p-2.5 sm:p-3 pl-3 sm:pl-4 mx-auto gap-2 sm:gap-4"
-      >
-        <select
-          className="text-sm pl-3 pr-2 outline-none"
-          value={mode}
-          onChange={(e) => setMode(e.target.value)}
+
+      {/* Fixed bottom section — never scrolls */}
+      <div className="shrink-0 pt-2">
+        {mode === "image" && (
+          <label className="inline-flex items-center gap-2 mb-3 text-sm mx-auto">
+            <p className="text-xs">Publish Generated Image to Community</p>
+            <input
+              type="checkbox"
+              className="cursor-pointer"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+            />
+          </label>
+        )}
+        {/* Prompt Input Box */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-primary/20 dark:bg-[#583C79]/30 border border-primary dark:border-[#80609F]/30 rounded-full flex items-center w-full max-w-2xl p-2.5 sm:p-3 pl-3 sm:pl-4 mx-auto gap-2 sm:gap-4"
         >
-          <option className="dark:bg-purple-900" value="text">
-            Text
-          </option>
-          <option className="dark:bg-purple-900" value="image">
-            Image
-          </option>
-        </select>
-        <input
-          type="text"
-          placeholder="Type your prompt here..."
-          value={prompt}
-          className="flex-1 w-full text-sm outline-none"
-          required
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <button disabled={loading}>
-          <img
-            src={loading ? assets.stop_icon : assets.send_icon}
-            className="w-8 cursor-pointer"
+          <select
+            className="text-sm pl-2 sm:pl-3 pr-1 sm:pr-2 outline-none"
+            value={mode}
+            onChange={(e) => setMode(e.target.value)}
+          >
+            <option className="dark:bg-purple-900" value="text">
+              Text
+            </option>
+            <option className="dark:bg-purple-900" value="image">
+              Image
+            </option>
+          </select>
+          <input
+            type="text"
+            placeholder="Type your prompt here..."
+            value={prompt}
+            className="flex-1 w-full text-sm outline-none min-w-0"
+            required
+            onChange={(e) => setPrompt(e.target.value)}
           />
-        </button>
-      </form>
+          <button disabled={loading}>
+            <img
+              src={loading ? assets.stop_icon : assets.send_icon}
+              className="w-7 sm:w-8 cursor-pointer shrink-0"
+            />
+          </button>
+        </form>
+      </div>
     </div>
   );
   

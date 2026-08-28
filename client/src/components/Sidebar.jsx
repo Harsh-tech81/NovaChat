@@ -71,15 +71,15 @@ function Sidebar({ isMenuOpen, setIsMenuOpen }) {
       }}  
         src={theme === "dark" ? assets.logo_full : assets.logo_full_dark}
         alt="Logo"
-        className="w-full max-w-54 cursor-pointer"
+        className="w-full max-w-54 cursor-pointer shrink-0"
       />
       {/* New Chat Button */}
-      <button  onClick={createNewChat} className="flex items-center justify-center w-full py-2 mt-10 text-white bg-gradient-to-r from-[#A456F7] to-[#3D81F6] text-sm rounded-md cursor-pointer ">
+      <button  onClick={createNewChat} className="flex items-center justify-center w-full py-2 mt-10 text-white bg-gradient-to-r from-[#A456F7] to-[#3D81F6] text-sm rounded-md cursor-pointer shrink-0">
         <span className="mr-2 text-xl">+</span> New Chat
       </button>
 
       {/* Search Conversations */}
-      <div className="flex items-center gap-2 p-3 mt-4 border border-gray-400 dark:border-white/20 rounded-md">
+      <div className="flex items-center gap-2 p-3 mt-4 border border-gray-400 dark:border-white/20 rounded-md shrink-0">
         <IoSearchOutline className="text-gray-500 dark:text-[#B1A6C0]" />
         <input
           onChange={(e) => setSearch(e.target.value)}
@@ -90,8 +90,10 @@ function Sidebar({ isMenuOpen, setIsMenuOpen }) {
         />
       </div>
       {/* Recent Chats */}
-      {chats.length > 0 && <p className="mt-4 text-sm">Recent Chats</p>}
-      <div className="flex-1 overflow-y-scroll mt-3 text-sm space-y-3">
+      {chats.length > 0 && <p className="mt-4 text-sm shrink-0">Recent Chats</p>}
+      
+      {/* Scrollable chat list — this is the only part that scrolls */}
+      <div className="flex-1 overflow-y-auto mt-3 text-sm space-y-3 min-h-0">
         {chats
           .filter((chat) =>
             chat.messages[0]
@@ -135,71 +137,74 @@ function Sidebar({ isMenuOpen, setIsMenuOpen }) {
           ))}
       </div>
 
-      {/* Community Images */}
-      <div
-        onClick={() => {
-          navigate("/community");
-          setIsMenuOpen(false);
-        }}
-        className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all duration-300"
-      >
-        <GrGallery className="w-5 h-4 cursor-pointer" />
-        <div className="flex flex-col text-sm">
-          <p>Community Images</p>
+      {/* Fixed bottom section — never scrolls */}
+      <div className="shrink-0 space-y-3 pt-3 border-t border-gray-200 dark:border-[#80609F]/20 mt-3">
+        {/* Community Images */}
+        <div
+          onClick={() => {
+            navigate("/community");
+            setIsMenuOpen(false);
+          }}
+          className="flex items-center gap-2 p-3 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all duration-300"
+        >
+          <GrGallery className="w-5 h-4 cursor-pointer" />
+          <div className="flex flex-col text-sm">
+            <p>Community Images</p>
+          </div>
         </div>
-      </div>
 
-      {/* Credit purchase options */}
-      <div
-        onClick={() => {
-          navigate("/credits");
-          setIsMenuOpen(false);
-        }}
-        className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all duration-300"
-      >
-        <IoDiamondOutline className="w-5 h-4 cursor-pointer" />
-        <div className="flex flex-col text-sm">
-          <p>Credits : {user?.credits || 0}</p>
-          <p className="text-xs text-gray-400 dark:text-[#B1A6C0]">
-            Purchase more credits to continue NovaChat
+        {/* Credit purchase options */}
+        <div
+          onClick={() => {
+            navigate("/credits");
+            setIsMenuOpen(false);
+          }}
+          className="flex items-center gap-2 p-3 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all duration-300"
+        >
+          <IoDiamondOutline className="w-5 h-4 cursor-pointer" />
+          <div className="flex flex-col text-sm">
+            <p>Credits : {user?.credits || 0}</p>
+            <p className="text-xs text-gray-400 dark:text-[#B1A6C0]">
+              Purchase more credits to continue NovaChat
+            </p>
+          </div>
+        </div>
+
+        {/* Dark Mode Toggle */}
+        <div className="flex items-center justify-between gap-2 p-3 border border-gray-300 dark:border-white/15 rounded-md ">
+          <div className="flex items-center gap-2 text-sm">
+            <TiWeatherSunny className="w-5 h-5" />
+            <p>Dark Mode</p>
+          </div>
+          <label className="relative inline-flex cursor-pointer">
+            <input
+              onChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+              type="checkbox"
+              className="sr-only peer"
+              checked={theme === "dark"}
+            />
+            <div className="w-9 h-5 bg-gray-400 rounded-full peer-checked:bg-purple-600 transition-all"></div>
+            <span className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-all peer-checked:translate-x-4"></span>
+          </label>
+        </div>
+
+        {/* User Account */}
+        <div
+          onClick={() => navigate("/")}
+          className="flex items-center gap-3 p-3 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
+        >
+          <img src={assets.user_icon} className="w-7 rounded-full" />
+          <p className="flex-1 text-sm dark:text-primary truncate">
+            {user ? user.name || "User" : "Login your account"}
           </p>
+          {user && (
+            <img
+              src={assets.logout_icon}
+              className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"
+              onClick={logout}
+            />
+          )}
         </div>
-      </div>
-
-      {/* Dark Mode Toggle */}
-      <div className="flex items-center justify-between gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md ">
-        <div className="flex items-center gap-2 text-sm">
-          <TiWeatherSunny className="w-5 h-5" />
-          <p>Dark Mode</p>
-        </div>
-        <label className="relative inline-flex cursor-pointer">
-          <input
-            onChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-            type="checkbox"
-            className="sr-only peer"
-            checked={theme === "dark"}
-          />
-          <div className="w-9 h-5 bg-gray-400 rounded-full peer-checked:bg-purple-600 transition-all"></div>
-          <span className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-all peer-checked:translate-x-4"></span>
-        </label>
-      </div>
-
-      {/* User Account */}
-      <div
-        onClick={() => navigate("/")}
-        className="flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
-      >
-        <img src={assets.user_icon} className="w-7 rounded-full" />
-        <p className="flex-1 text-sm dark:text-primary truncate">
-          {user ? user.name || "User" : "Login your account"}
-        </p>
-        {user && (
-          <img
-            src={assets.logout_icon}
-            className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"
-            onClick={logout}
-          />
-        )}
       </div>
 
       <img

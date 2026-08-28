@@ -268,3 +268,25 @@
 :not(.dark) .markdown-body blockquote {
   color: #555;
 }
+
+/* Message copy button (for user & AI messages) */
+.msg-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  color: #B1A6C0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
+  white-space: nowrap;
+  shrink: 0;
+}
+.msg-copy-btn:hover {
+  background: rgba(164, 86, 247, 0.12);
+  color: #C4B5FD;
+}
