@@ -1,6 +1,6 @@
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Message from "./Message";
 import { toast } from "react-hot-toast";
 
@@ -12,6 +12,16 @@ function ChatBox() {
   const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(false);
   const containerRef = useRef(null);
+  const endRef = useRef(null);
+
+  const scrollToBottom = useCallback(() => {
+    // Use setTimeout to ensure the DOM has fully rendered before scrolling
+    setTimeout(() => {
+      if (endRef.current) {
+        endRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+    }, 100);
+  }, []);
 
   useEffect(() => {
     if (selectedChat) {
@@ -71,13 +81,8 @@ function ChatBox() {
   };
 
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [messages]);
+    scrollToBottom();
+  }, [messages, loading, scrollToBottom]);
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden px-3 sm:px-5 md:px-10 xl:px-30 pt-3 sm:pt-5 md:pt-10 max-md:pt-14 2xl:pr-40 pb-3 sm:pb-5">
@@ -107,6 +112,8 @@ function ChatBox() {
             </div>
           </div>
         )}
+        {/* Scroll anchor — always at the very bottom */}
+        <div ref={endRef} />
       </div>
 
       {/* Fixed bottom section — never scrolls */}
