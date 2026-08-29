@@ -70,17 +70,48 @@ export const imageMessageController = async (req, res) => {
       timestamp: Date.now(),
       isImage: false,
     });
-    // Encode the prompt
-    const encodedPrompt = encodeURIComponent(prompt);
-    // Construct the Imagekit AI generation URL
-    const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/ik-genimg-prompt-${encodedPrompt}/NovaChat/${Date.now()}.png?tr=w-800,h-800`;
+    // Encode the prompt (replace spaces with hyphens for ImageKit URL compatibility)
+    const encodedPrompt = prompt.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, "");
+    // Construct the ImageKit AI generation URL with transformation parameter
+    const generatedImageUrl = `${process.env.IMAGEKIT_URL_ENDPOINT}/tr:ik-genimg-prompt-${encodedPrompt},w-800,h-800/${Date.now()}.png`;
 
     let imageUrl;
     try {
-      // trigger generation by fetching from Imagekit
-      const aiImageResponse = await axios.get(generatedImageUrl, {
-        responseType: "arraybuffer",
-      });
+      // ImageKit AI generation is async — first request triggers generation,
+      // subsequent requests poll until the image is ready.
+      // Poll up to 30 times with 3s delay (~90s max wait).
+      const MAX_RETRIES = 30;
+      const POLL_INTERVAL = 3000; // 3 seconds
+      let aiImageResponse = null;
+
+      for (let i = 0; i < MAX_RETRIES; i++) {
+        try {
+          const response = await axios.get(generatedImageUrl, {
+            responseType: "arraybuffer",
+            timeout: 60000, // 60s timeout — initial AI gen takes 20-30s
+          });
+
+          const isIntermediate = response.headers["is-intermediate-response"] === "true";
+          const contentType = response.headers["content-type"] || "";
+
+          if (!isIntermediate && contentType.startsWith("image/")) {
+            // Image is ready
+            aiImageResponse = response;
+            break;
+          }
+        } catch (pollErr) {
+          // Transient error (timeout, network), continue polling
+          console.log(`Image poll attempt ${i + 1} failed: ${pollErr.message}`);
+        }
+
+        // Image still being generated, wait and retry
+        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
+      }
+
+      if (!aiImageResponse) {
+        throw new Error("Image generation timed out");
+      }
+
       // Convert to Base64
       const base64Image = `data:image/png;base64,${Buffer.from(aiImageResponse.data, "binary").toString("base64")}`;
       // Upload to ImageKit Media Library
